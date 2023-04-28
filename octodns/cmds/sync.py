@@ -16,6 +16,12 @@ def main():
         help='The Manager configuration file to use',
     )
     parser.add_argument(
+        '--no-delete',
+        action='store_true',
+        default=False,
+        help='Whether sync should delete records as part of the sync or not',
+    )
+    parser.add_argument(
         '--doit',
         action='store_true',
         default=False,
@@ -60,6 +66,7 @@ def main():
         eligible_targets=args.target,
         dry_run=not args.doit,
         force=args.force,
+        no_delete=args.no_delete
     )
 
 

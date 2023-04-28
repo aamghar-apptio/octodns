@@ -460,15 +460,17 @@ class Manager(object):
         dry_run=True,
         force=False,
         plan_output_fh=stdout,
+        no_delete=False,
     ):
 
         self.log.info(
             'sync: eligible_zones=%s, eligible_targets=%s, dry_run=%s, '
-            'force=%s, plan_output_fh=%s',
+            'force=%s, no_delete_flag=%s, plan_output_fh=%s',
             eligible_zones,
             eligible_targets,
             dry_run,
             force,
+            no_delete,
             getattr(plan_output_fh, 'name', plan_output_fh.__class__.__name__),
         )
 
@@ -650,7 +652,7 @@ class Manager(object):
                     'sync: zone=%s skipping always-dry-run', zone_name
                 )
                 continue
-            total_changes += target.apply(plan)
+            total_changes += target.apply(plan,no_delete)
 
         self.log.info('sync:   %d total changes', total_changes)
         return total_changes
@@ -754,10 +756,10 @@ class Manager(object):
         for source in sources:
             source.populate(zone, lenient=lenient)
 
-        plan = target.plan(zone)
+        plan = target.plan(zone,no_delete)
         if plan is None:
-            plan = Plan(zone, zone, [], False)
-        target.apply(plan)
+            plan = Plan(zone, zone, [], False,no_delete)
+        target.apply(plan,no_delete)
 
     def validate_configs(self):
         # TODO: this code can probably be shared with stuff in sync

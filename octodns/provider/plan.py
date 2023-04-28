@@ -43,6 +43,7 @@ class Plan(object):
         exists,
         update_pcent_threshold=MAX_SAFE_UPDATE_PCENT,
         delete_pcent_threshold=MAX_SAFE_DELETE_PCENT,
+        no_delete = False
     ):
         self.existing = existing
         self.desired = desired
@@ -54,6 +55,7 @@ class Plan(object):
         self.exists = exists
         self.update_pcent_threshold = update_pcent_threshold
         self.delete_pcent_threshold = delete_pcent_threshold
+        self.no_delete = no_delete
 
         change_counts = {'Create': 0, 'Delete': 0, 'Update': 0}
         for change in changes:

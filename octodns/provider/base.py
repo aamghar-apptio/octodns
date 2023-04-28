@@ -16,6 +16,7 @@ class BaseProvider(BaseSource):
         update_pcent_threshold=Plan.MAX_SAFE_UPDATE_PCENT,
         delete_pcent_threshold=Plan.MAX_SAFE_DELETE_PCENT,
         strict_supports=False,
+        no_delete=False,
     ):
         super().__init__(id)
         self.log.debug(
@@ -171,9 +172,10 @@ class BaseProvider(BaseSource):
             raise SupportsException(f'{self.id}: {msg}')
         self.log.warning('%s; %s', msg, fallback)
 
-    def plan(self, desired, processors=[]):
+    def plan(self, desired, processors=[], no_delete=False):
         self.log.info('plan: desired=%s', desired.decoded_name)
 
+        no_delete = no_delete
         existing = Zone(desired.name, desired.sub_zones)
         exists = self.populate(existing, target=True, lenient=True)
         if exists is None:
@@ -224,13 +226,14 @@ class BaseProvider(BaseSource):
                 exists,
                 self.update_pcent_threshold,
                 self.delete_pcent_threshold,
+                no_delete
             )
             self.log.info('plan:   %s', plan)
             return plan
         self.log.info('plan:   No changes')
         return None
 
-    def apply(self, plan):
+    def apply(self, plan, no_delete):
         '''
         Submits actual planned changes to the provider. Returns the number of
         changes made
@@ -238,11 +241,11 @@ class BaseProvider(BaseSource):
         if self.apply_disabled:
             self.log.info('apply: disabled')
             return 0
-
+     
         zone_name = plan.desired.decoded_name
         num_changes = len(plan.changes)
         self.log.info('apply: making %d changes to %s', num_changes, zone_name)
-        self._apply(plan)
+        self._apply(plan,no_delete)
         return len(plan.changes)
 
     def _apply(self, plan):
